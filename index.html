@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Teachable Machine ROI</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #1a1a2e;
+      color: #e0e0e0;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Left panel - camera + ROI */
+    #camera-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 12px;
+      min-width: 0;
+    }
+    #video-container {
+      position: relative;
+      flex: 1;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    #webcam {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+    #roi-overlay {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      cursor: crosshair;
+    }
+
+    /* Right panel */
+    #control-panel {
+      width: 340px;
+      background: #16213e;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow-y: auto;
+    }
+    h2 { font-size: 13px; color: #aaa8cc; text-transform: uppercase; letter-spacing: 1px; margin: 0; }
+
+    .section {
+      background: #1a1a2e;
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    label { font-size: 12px; color: #aaa; display: block; margin-bottom: 4px; }
+    input[type="text"], input[type="number"], select {
+      width: 100%;
+      padding: 6px 8px;
+      background: #0f3460;
+      border: 1px solid #333;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    button {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .btn-primary { background: #e94560; color: #fff; }
+    .btn-primary:hover { background: #c73550; }
+    .btn-primary:disabled { background: #555; cursor: not-allowed; }
+    .btn-secondary { background: #0f3460; color: #aaa; }
+    .btn-secondary:hover { background: #1a4a7a; }
+    .btn-danger { background: #661a1a; color: #e88; }
+    .btn-danger:hover { background: #882222; }
+
+    .btn-row { display: flex; gap: 6px; }
+
+    /* ROI list */
+    .roi-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 0;
+      border-bottom: 1px solid #333;
+      font-size: 12px;
+    }
+    .roi-color {
+      width: 12px; height: 12px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+    .roi-item button { padding: 2px 8px; font-size: 11px; }
+    .roi-name-input {
+      flex: 1;
+      padding: 2px 6px !important;
+      margin-bottom: 0 !important;
+      font-size: 12px !important;
+      background: transparent !important;
+      border: 1px solid transparent !important;
+    }
+    .roi-name-input:hover { border-color: #777 !important; }
+    .roi-name-input:focus { border-color: #e94560 !important; outline: none; background: #0f3460 !important; }
+
+    /* Model URL popover */
+    .model-url-popover {
+      display: none;
+      margin-top: 6px;
+    }
+    .model-url-popover.open {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .model-url-popover input { flex: 1; margin-bottom: 0 !important; }
+    .model-url-popover button { flex-shrink: 0; }
+
+    /* OSC header row */
+    .osc-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .osc-header h2 { flex: 1; }
+
+    /* OSC toggle */
+    .osc-toggle {
+      position: relative;
+      width: 36px; height: 20px;
+      background: #333;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .osc-toggle.active { background: #00e676; }
+    .osc-toggle::after {
+      content: '';
+      position: absolute;
+      top: 2px; left: 2px;
+      width: 16px; height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      transition: left 0.2s;
+    }
+    .osc-toggle.active::after { left: 18px; }
+
+    /* Settings gear button */
+    .btn-gear {
+      background: none; border: none; color: #aaa;
+      font-size: 16px; cursor: pointer; padding: 0 4px;
+      flex-shrink: 0;
+    }
+    .btn-gear:hover { color: #fff; }
+
+    /* OSC settings popover */
+    .osc-settings-popover {
+      display: none;
+      background: #0f3460;
+      border: 1px solid #333;
+      border-radius: 6px;
+      padding: 10px;
+      margin-top: 6px;
+    }
+    .osc-settings-popover.open { display: block; }
+    .osc-settings-popover .inline-row {
+      display: flex; gap: 8px; align-items: flex-end;
+    }
+    .osc-settings-popover .inline-row > div { flex: 1; }
+
+    /* OSC connection indicator */
+    .osc-conn-status {
+      font-size: 10px;
+      color: #aaa;
+      margin-top: 2px;
+    }
+
+    /* OSC Monitor */
+    #osc-monitor {
+      font-family: 'SF Mono', 'Menlo', monospace;
+      font-size: 11px;
+      flex: 1;
+      overflow-y: auto;
+      padding: 6px;
+    }
+    .osc-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    /* OSC activity indicator (single, in header) */
+    .osc-activity {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #333;
+      flex-shrink: 0;
+      transition: background 0.05s;
+    }
+    .osc-activity.on {
+      background: #00e676;
+      box-shadow: 0 0 6px #00e676;
+    }
+
+    /* OSC monitor checkboxes */
+    .osc-row input[type="checkbox"] {
+      accent-color: #64ffda;
+      flex-shrink: 0;
+      margin: 0;
+      cursor: pointer;
+    }
+    .osc-row.disabled .osc-addr,
+    .osc-row.disabled .osc-val {
+      color: #aaa;
+    }
+    .osc-addr {
+      color: #64ffda;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .osc-val {
+      color: #eeff41;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    /* Status */
+    #status {
+      font-size: 10px;
+      color: #777;
+      padding: 2px 0;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="camera-panel">
+    <div id="video-container">
+      <video id="webcam" autoplay playsinline muted></video>
+      <canvas id="roi-overlay"></canvas>
+    </div>
+  </div>
+
+  <div id="control-panel">
+    <!-- Camera -->
+    <div class="section">
+      <label>Camera</label>
+      <select id="camera-select"></select>
+    </div>
+
+    <!-- Model -->
+    <div class="section">
+      <label>Model</label>
+      <div class="btn-row">
+        <button class="btn-secondary" id="load-model-btn">Load URL</button>
+        <button class="btn-secondary" id="load-zip-btn">Load ZIP</button>
+      </div>
+      <div id="model-url-popover" class="model-url-popover">
+        <input type="text" id="model-url" placeholder="https://teachablemachine.withgoogle.com/models/xxxxx">
+        <button class="btn-primary" id="model-url-submit">Load</button>
+      </div>
+      <div id="model-status" style="font-size:11px; color:#aaa; margin-top:4px;"></div>
+    </div>
+
+    <!-- ROI -->
+    <div class="section">
+      <label>ROI</label>
+      <div id="roi-list"></div>
+      <button class="btn-danger" id="clear-rois-btn" style="margin-top:6px; font-size:11px; padding:3px 8px;">Clear All</button>
+    </div>
+
+    <!-- OSC header: toggle + gear -->
+    <div class="osc-header">
+      <h2>OSC</h2>
+      <span class="osc-activity" id="osc-activity" title="Send activity"></span>
+      <div class="osc-toggle" id="osc-toggle" title="Toggle OSC connection"></div>
+      <button class="btn-gear" id="osc-gear-btn" title="OSC Settings">&#9881;</button>
+    </div>
+    <div class="osc-conn-status" id="osc-conn-status">Disconnected</div>
+
+    <!-- OSC settings popover -->
+    <div class="osc-settings-popover" id="osc-settings-popover">
+      <div class="inline-row">
+        <div>
+          <label>Host</label>
+          <input type="text" id="osc-host" value="127.0.0.1">
+        </div>
+        <div>
+          <label>Port</label>
+          <input type="number" id="osc-port" value="9000">
+        </div>
+      </div>
+      <label>Address Prefix</label>
+      <input type="text" id="osc-prefix" value="/tm/roi">
+      <label>Interval (ms)</label>
+      <input type="number" id="inference-interval" value="200" min="50" max="2000" step="50">
+    </div>
+
+    <!-- OSC Monitor -->
+    <div id="osc-monitor" class="section"></div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
