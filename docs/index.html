@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Teachable Machine ROI</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap');
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -22,12 +22,53 @@
     }
 
     body {
-      font-family: 'Inter', -apple-system, sans-serif;
+      font-family: 'Noto Sans JP', 'Inter', -apple-system, sans-serif;
       background: var(--bg);
       color: var(--text);
-      line-height: 1.7;
+      line-height: 1.8;
       overflow-x: hidden;
     }
+
+    /* Language switcher */
+    .lang-switch {
+      position: fixed;
+      top: 1.5rem;
+      right: 1.5rem;
+      z-index: 100;
+      display: flex;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      background: var(--surface);
+    }
+
+    .lang-btn {
+      padding: 0.35rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      border: none;
+      background: transparent;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .lang-btn.active {
+      background: var(--accent);
+      color: #000;
+    }
+
+    .lang-btn:hover:not(.active) {
+      color: var(--text);
+    }
+
+    [lang="en"] { display: none; }
+    body.en [lang="en"] { display: block; }
+    body.en [lang="ja"] { display: none; }
+    body.en span[lang="en"],
+    span[lang="ja"] { display: inline; }
+    body.en span[lang="ja"] { display: none; }
+    span[lang="en"] { display: none; }
 
     /* Hero */
     .hero {
@@ -79,7 +120,7 @@
       font-size: clamp(2.5rem, 6vw, 4.5rem);
       font-weight: 700;
       letter-spacing: -0.03em;
-      line-height: 1.1;
+      line-height: 1.2;
       margin-bottom: 1.5rem;
     }
 
@@ -91,9 +132,9 @@
     }
 
     .hero-sub {
-      font-size: clamp(1rem, 2vw, 1.25rem);
+      font-size: clamp(1rem, 2vw, 1.2rem);
       color: var(--text-dim);
-      max-width: 600px;
+      max-width: 620px;
       margin-bottom: 2.5rem;
     }
 
@@ -137,7 +178,7 @@
       transform: translateY(-1px);
     }
 
-    /* Problem section */
+    /* Sections */
     .section {
       padding: 6rem 2rem;
       max-width: 900px;
@@ -185,13 +226,8 @@
       background: var(--surface);
     }
 
-    .compare-card.problem {
-      border-color: rgba(255, 107, 107, 0.3);
-    }
-
-    .compare-card.solution {
-      border-color: rgba(78, 205, 196, 0.3);
-    }
+    .compare-card.problem { border-color: rgba(255, 107, 107, 0.3); }
+    .compare-card.solution { border-color: rgba(78, 205, 196, 0.3); }
 
     .compare-card h3 {
       font-size: 0.85rem;
@@ -204,10 +240,7 @@
     .compare-card.problem h3 { color: var(--accent2); }
     .compare-card.solution h3 { color: var(--accent); }
 
-    .compare-card ul {
-      list-style: none;
-      padding: 0;
-    }
+    .compare-card ul { list-style: none; padding: 0; }
 
     .compare-card li {
       padding: 0.4rem 0;
@@ -218,20 +251,9 @@
       gap: 0.5rem;
     }
 
-    .compare-card li::before {
-      flex-shrink: 0;
-      margin-top: 0.15rem;
-    }
-
-    .compare-card.problem li::before {
-      content: '\2715';
-      color: var(--accent2);
-    }
-
-    .compare-card.solution li::before {
-      content: '\2713';
-      color: var(--accent);
-    }
+    .compare-card li::before { flex-shrink: 0; margin-top: 0.15rem; }
+    .compare-card.problem li::before { content: '\2715'; color: var(--accent2); }
+    .compare-card.solution li::before { content: '\2713'; color: var(--accent); }
 
     /* Features */
     .features {
@@ -249,26 +271,13 @@
       transition: border-color 0.2s;
     }
 
-    .feature:hover {
-      border-color: #444;
-    }
+    .feature:hover { border-color: #444; }
 
-    .feature-icon {
-      font-size: 1.5rem;
-      margin-bottom: 0.75rem;
-    }
+    .feature-icon { font-size: 1.5rem; margin-bottom: 0.75rem; }
 
-    .feature h3 {
-      font-size: 1rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-    }
+    .feature h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; }
 
-    .feature p {
-      font-size: 0.9rem;
-      color: var(--text-dim);
-      line-height: 1.6;
-    }
+    .feature p { font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
 
     /* Use cases */
     .use-case {
@@ -279,19 +288,10 @@
       margin-bottom: 1rem;
     }
 
-    .use-case h4 {
-      font-size: 0.95rem;
-      font-weight: 600;
-      margin-bottom: 0.25rem;
-    }
+    .use-case h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .use-case p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
 
-    .use-case p {
-      font-size: 0.9rem;
-      color: var(--text-dim);
-      margin: 0;
-    }
-
-    /* Architecture diagram */
+    /* Architecture */
     .arch {
       margin: 3rem 0;
       padding: 2rem;
@@ -309,24 +309,14 @@
       font-size: 0.9rem;
     }
 
-    .arch-node {
-      padding: 0.5rem 1rem;
-      border-radius: 8px;
-      font-weight: 500;
-      white-space: nowrap;
-    }
-
+    .arch-node { padding: 0.5rem 1rem; border-radius: 8px; font-weight: 500; white-space: nowrap; }
     .arch-node.cam { background: rgba(78, 205, 196, 0.15); color: var(--accent); border: 1px solid rgba(78, 205, 196, 0.3); }
     .arch-node.roi { background: rgba(255, 230, 109, 0.15); color: var(--accent3); border: 1px solid rgba(255, 230, 109, 0.3); }
     .arch-node.tm { background: rgba(255, 107, 107, 0.15); color: var(--accent2); border: 1px solid rgba(255, 107, 107, 0.3); }
     .arch-node.osc { background: rgba(78, 205, 196, 0.15); color: var(--accent); border: 1px solid rgba(78, 205, 196, 0.3); }
+    .arch-arrow { color: var(--text-dim); font-size: 1.2rem; }
 
-    .arch-arrow {
-      color: var(--text-dim);
-      font-size: 1.2rem;
-    }
-
-    /* Getting started */
+    /* Code block */
     .code-block {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -351,16 +341,9 @@
       font-size: 0.85rem;
     }
 
-    .footer a {
-      color: var(--accent);
-      text-decoration: none;
-    }
+    .footer a { color: var(--accent); text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
 
-    .footer a:hover {
-      text-decoration: underline;
-    }
-
-    /* Divider */
     .divider {
       max-width: 900px;
       margin: 0 auto;
@@ -370,6 +353,12 @@
   </style>
 </head>
 <body>
+
+  <!-- Language switcher -->
+  <div class="lang-switch">
+    <button class="lang-btn active" onclick="setLang('ja')">JA</button>
+    <button class="lang-btn" onclick="setLang('en')">EN</button>
+  </div>
 
   <!-- Hero -->
   <section class="hero">
@@ -381,7 +370,11 @@
       Teachable Machine<br>
       meets <span class="highlight">ROI</span>
     </h1>
-    <p class="hero-sub">
+    <p class="hero-sub" lang="ja">
+      Teachable Machine + 関心領域（ROI） + OSC。<br>
+      「何が」「どこに」あるかを同時に判定し、どこにでも送れる。
+    </p>
+    <p class="hero-sub" lang="en">
       Teachable Machine&thinsp;+&thinsp;Region of Interest&thinsp;+&thinsp;OSC.<br>
       "Where" and "what" &mdash; answered together, sent anywhere.
     </p>
@@ -399,33 +392,60 @@
 
   <!-- Problem -->
   <section class="section">
-    <span class="section-label">The gap</span>
-    <h2>Easy classification, but no spatial awareness</h2>
-    <p>
-      Teachable Machine made image classification delightfully easy &mdash;
-      train a model in minutes, right in your browser.
-      But it looks at the entire camera frame at once.
-      It can tell you <em>what</em> it sees, but not <em>where</em>.
-    </p>
-    <p>
-      YOLO and other object detection frameworks can do both &mdash;
-      but setting them up involves environment configuration,
-      annotation workflows, and GPU training pipelines.
-      That's a steep jump for creative coders and interaction designers.
-    </p>
+    <div lang="ja">
+      <span class="section-label">課題</span>
+      <h2>簡単に識別できる。でも「場所」がわからない。</h2>
+      <p>
+        Teachable Machineは画像分類をとても手軽にしてくれました。
+        ブラウザ上で数分でモデルを学習できます。
+        でも、カメラの全画面を一括で見るため、
+        「何が写っているか」はわかっても「どこにあるか」はわかりません。
+      </p>
+      <p>
+        YOLOなどの物体検出フレームワークなら両方できますが、
+        環境構築、アノテーション、GPU学習など、
+        クリエイティブコーダーやインタラクションデザイナーにはハードルが高すぎます。
+      </p>
+    </div>
+    <div lang="en">
+      <span class="section-label">The gap</span>
+      <h2>Easy classification, but no spatial awareness</h2>
+      <p>
+        Teachable Machine made image classification delightfully easy &mdash;
+        train a model in minutes, right in your browser.
+        But it looks at the entire camera frame at once.
+        It can tell you <em>what</em> it sees, but not <em>where</em>.
+      </p>
+      <p>
+        YOLO and other object detection frameworks can do both &mdash;
+        but setting them up involves environment configuration,
+        annotation workflows, and GPU training pipelines.
+        That's a steep jump for creative coders and interaction designers.
+      </p>
+    </div>
 
     <div class="compare">
       <div class="compare-card problem">
-        <h3>Teachable Machine alone</h3>
-        <ul>
+        <h3>Teachable Machine<span lang="ja">単体</span><span lang="en"> alone</span></h3>
+        <ul lang="ja">
+          <li>全画面の一括識別のみ</li>
+          <li>空間的な情報がない</li>
+          <li>物体の位置を区別できない</li>
+        </ul>
+        <ul lang="en">
           <li>Whole-frame classification only</li>
           <li>No spatial information</li>
           <li>Can't distinguish location of objects</li>
         </ul>
       </div>
       <div class="compare-card problem">
-        <h3>YOLO / Object Detection</h3>
-        <ul>
+        <h3>YOLO / <span lang="ja">物体検出</span><span lang="en">Object Detection</span></h3>
+        <ul lang="ja">
+          <li>環境構築が複雑</li>
+          <li>手動でのバウンディングボックス付与</li>
+          <li>GPU学習が必要</li>
+        </ul>
+        <ul lang="en">
           <li>Complex environment setup</li>
           <li>Manual bounding-box annotation</li>
           <li>GPU training required</li>
@@ -436,7 +456,13 @@
     <div class="compare">
       <div class="compare-card solution" style="grid-column: 1 / -1;">
         <h3>Teachable Machine ROI</h3>
-        <ul>
+        <ul lang="ja">
+          <li>学習済みのTeachable Machineモデルをそのまま使える</li>
+          <li>カメラ映像上にROI（関心領域）を自由に描画</li>
+          <li>各ROIを独立して識別</li>
+          <li>結果をOSCで送信し、あらゆるアプリと連携</li>
+        </ul>
+        <ul lang="en">
           <li>Use your existing Teachable Machine model as-is</li>
           <li>Draw square ROI regions on the camera feed</li>
           <li>Each region classified independently</li>
@@ -450,24 +476,43 @@
 
   <!-- How it works -->
   <section class="section">
-    <span class="section-label">How it works</span>
-    <h2>Draw a box. Load a model. Done.</h2>
-    <p>
-      Draw one or more square ROI regions directly on the camera preview.
-      Each region is cropped and fed into your Teachable Machine model
-      independently. Classification results are displayed in real time
-      and sent over OSC.
-    </p>
+    <div lang="ja">
+      <span class="section-label">しくみ</span>
+      <h2>枠を描いて、モデルを読み込むだけ。</h2>
+      <p>
+        カメラプレビュー上に正方形のROI領域を描画します。
+        各領域は個別に切り出され、Teachable Machineのモデルに入力されます。
+        識別結果はリアルタイムで表示され、OSCで送信されます。
+      </p>
+    </div>
+    <div lang="en">
+      <span class="section-label">How it works</span>
+      <h2>Draw a box. Load a model. Done.</h2>
+      <p>
+        Draw one or more square ROI regions directly on the camera preview.
+        Each region is cropped and fed into your Teachable Machine model
+        independently. Classification results are displayed in real time
+        and sent over OSC.
+      </p>
+    </div>
 
     <div class="arch">
       <div class="arch-flow">
-        <span class="arch-node cam">Webcam</span>
+        <span class="arch-node cam">
+          <span lang="ja">Webカメラ</span><span lang="en">Webcam</span>
+        </span>
         <span class="arch-arrow">&rarr;</span>
-        <span class="arch-node roi">ROI Crop</span>
+        <span class="arch-node roi">
+          <span lang="ja">ROI切り出し</span><span lang="en">ROI Crop</span>
+        </span>
         <span class="arch-arrow">&rarr;</span>
-        <span class="arch-node tm">TM Model</span>
+        <span class="arch-node tm">
+          <span lang="ja">TMモデル</span><span lang="en">TM Model</span>
+        </span>
         <span class="arch-arrow">&rarr;</span>
-        <span class="arch-node osc">OSC Out</span>
+        <span class="arch-node osc">
+          <span lang="ja">OSC送信</span><span lang="en">OSC Out</span>
+        </span>
       </div>
     </div>
   </section>
@@ -476,39 +521,75 @@
 
   <!-- Features -->
   <section class="section">
-    <span class="section-label">Features</span>
-    <h2>What you get</h2>
+    <div lang="ja"><span class="section-label">特徴</span><h2>できること</h2></div>
+    <div lang="en"><span class="section-label">Features</span><h2>What you get</h2></div>
 
     <div class="features">
       <div class="feature">
-        <div class="feature-icon">&square;</div>
-        <h3>Multiple ROI Regions</h3>
-        <p>Draw as many regions as you need. Each one runs classification independently with its own results.</p>
+        <div class="feature-icon">&#9634;</div>
+        <div lang="ja">
+          <h3>複数のROI領域</h3>
+          <p>必要なだけ領域を描画できます。各ROIが独立して識別を実行します。</p>
+        </div>
+        <div lang="en">
+          <h3>Multiple ROI Regions</h3>
+          <p>Draw as many regions as you need. Each one runs classification independently with its own results.</p>
+        </div>
       </div>
       <div class="feature">
-        <div class="feature-icon">&target;</div>
-        <h3>Square Constraint</h3>
-        <p>ROIs are always square to match Teachable Machine's 224&times;224 input, preventing aspect-ratio distortion.</p>
+        <div class="feature-icon">&#9678;</div>
+        <div lang="ja">
+          <h3>正方形制約</h3>
+          <p>Teachable Machineの224&times;224入力に合わせて、ROIは常に正方形。アスペクト比のゆがみを防ぎます。</p>
+        </div>
+        <div lang="en">
+          <h3>Square Constraint</h3>
+          <p>ROIs are always square to match Teachable Machine's 224&times;224 input, preventing aspect-ratio distortion.</p>
+        </div>
       </div>
       <div class="feature">
-        <div class="feature-icon">&zigrarr;</div>
-        <h3>OSC Output</h3>
-        <p>Classification results sent via OSC. Works with Pure Data, Max/MSP, TouchDesigner, Unity, and more.</p>
+        <div class="feature-icon">&#8669;</div>
+        <div lang="ja">
+          <h3>OSC出力</h3>
+          <p>識別結果をOSCで送信。Pure Data、Max/MSP、TouchDesigner、Unityなどと連携できます。</p>
+        </div>
+        <div lang="en">
+          <h3>OSC Output</h3>
+          <p>Classification results sent via OSC. Works with Pure Data, Max/MSP, TouchDesigner, Unity, and more.</p>
+        </div>
       </div>
       <div class="feature">
-        <div class="feature-icon">&ofcir;</div>
-        <h3>Cloud or Local Models</h3>
-        <p>Paste a Teachable Machine URL or load a downloaded .zip. Works offline with local models.</p>
+        <div class="feature-icon">&#9788;</div>
+        <div lang="ja">
+          <h3>クラウド / ローカルモデル</h3>
+          <p>Teachable MachineのURLを貼るか、ダウンロードした.zipを読み込み。オフラインでも動作します。</p>
+        </div>
+        <div lang="en">
+          <h3>Cloud or Local Models</h3>
+          <p>Paste a Teachable Machine URL or load a downloaded .zip. Works offline with local models.</p>
+        </div>
       </div>
       <div class="feature">
-        <div class="feature-icon">&hamilt;</div>
-        <h3>Renamable ROIs</h3>
-        <p>Give each ROI a meaningful name. OSC addresses update automatically to match.</p>
+        <div class="feature-icon">&#9998;</div>
+        <div lang="ja">
+          <h3>ROIリネーム</h3>
+          <p>各ROIに名前をつけられます。OSCアドレスも自動で更新されます。</p>
+        </div>
+        <div lang="en">
+          <h3>Renamable ROIs</h3>
+          <p>Give each ROI a meaningful name. OSC addresses update automatically to match.</p>
+        </div>
       </div>
       <div class="feature">
-        <div class="feature-icon">&check;</div>
-        <h3>Selective OSC Sending</h3>
-        <p>Choose which classification results to send via checkboxes. Monitor active transmissions with a status indicator.</p>
+        <div class="feature-icon">&#10003;</div>
+        <div lang="ja">
+          <h3>選択的OSC送信</h3>
+          <p>チェックボックスで送信するデータを選択。送信中はインジケーターで状態を確認できます。</p>
+        </div>
+        <div lang="en">
+          <h3>Selective OSC Sending</h3>
+          <p>Choose which classification results to send via checkboxes. Monitor active transmissions with a status indicator.</p>
+        </div>
       </div>
     </div>
   </section>
@@ -517,24 +598,44 @@
 
   <!-- Use cases -->
   <section class="section">
-    <span class="section-label">Use cases</span>
-    <h2>What you can do with it</h2>
+    <div lang="ja"><span class="section-label">活用例</span><h2>こんなことができる</h2></div>
+    <div lang="en"><span class="section-label">Use cases</span><h2>What you can do with it</h2></div>
 
-    <div class="use-case">
-      <h4>Spatial triggers</h4>
-      <p>"If object A is in the left zone AND object B is in the right zone, trigger event C."</p>
+    <div lang="ja">
+      <div class="use-case">
+        <h4>空間トリガー</h4>
+        <p>「左のゾーンに物体Aがあり、かつ右のゾーンに物体Bがあったら、イベントCを実行」</p>
+      </div>
+      <div class="use-case">
+        <h4>移動検知</h4>
+        <p>「物体Aが左のROIから右のROIに移動したら、音を鳴らす」</p>
+      </div>
+      <div class="use-case">
+        <h4>マルチゾーンインタラクション</h4>
+        <p>テーブルやステージに複数のゾーンを設定し、各ゾーンに現れたものに個別に反応する。</p>
+      </div>
+      <div class="use-case">
+        <h4>ライブパフォーマンス</h4>
+        <p>識別結果をOSCでPure DataやMax/MSPに送信し、サウンド・映像・照明をリアルタイム制御。</p>
+      </div>
     </div>
-    <div class="use-case">
-      <h4>Movement detection</h4>
-      <p>"When object A moves from the left ROI to the right ROI, play a sound."</p>
-    </div>
-    <div class="use-case">
-      <h4>Multi-zone interaction</h4>
-      <p>Set up multiple zones on a table or stage and respond to what appears in each zone independently.</p>
-    </div>
-    <div class="use-case">
-      <h4>Live performance</h4>
-      <p>Send classification results to Pure Data or Max/MSP via OSC to control sound, visuals, or lighting in real time.</p>
+    <div lang="en">
+      <div class="use-case">
+        <h4>Spatial triggers</h4>
+        <p>"If object A is in the left zone AND object B is in the right zone, trigger event C."</p>
+      </div>
+      <div class="use-case">
+        <h4>Movement detection</h4>
+        <p>"When object A moves from the left ROI to the right ROI, play a sound."</p>
+      </div>
+      <div class="use-case">
+        <h4>Multi-zone interaction</h4>
+        <p>Set up multiple zones on a table or stage and respond to what appears in each zone independently.</p>
+      </div>
+      <div class="use-case">
+        <h4>Live performance</h4>
+        <p>Send classification results to Pure Data or Max/MSP via OSC to control sound, visuals, or lighting in real time.</p>
+      </div>
     </div>
   </section>
 
@@ -542,10 +643,24 @@
 
   <!-- Getting started -->
   <section class="section">
-    <span class="section-label">Getting started</span>
-    <h2>Up and running in 3 steps</h2>
+    <div lang="ja"><span class="section-label">はじめ方</span><h2>3ステップで起動</h2></div>
+    <div lang="en"><span class="section-label">Getting started</span><h2>Up and running in 3 steps</h2></div>
 
-    <div class="code-block">
+    <div class="code-block" lang="ja">
+      <span class="comment"># 1. クローンとインストール</span><br>
+      <span class="cmd">git clone</span> https://github.com/634nakajima/teachable-machine-roi.git<br>
+      <span class="cmd">cd</span> teachable-machine-roi<br>
+      <span class="cmd">npm install</span><br>
+      <br>
+      <span class="comment"># 2. 起動</span><br>
+      <span class="cmd">npm start</span><br>
+      <br>
+      <span class="comment"># 3. アプリ内で:</span><br>
+      <span class="comment">#    - Teachable MachineモデルをURLまたは.zipで読み込み</span><br>
+      <span class="comment">#    - カメラ映像上にROIを描画</span><br>
+      <span class="comment">#    - OSCをオンにして送信開始</span>
+    </div>
+    <div class="code-block" lang="en">
       <span class="comment"># 1. Clone and install</span><br>
       <span class="cmd">git clone</span> https://github.com/634nakajima/teachable-machine-roi.git<br>
       <span class="cmd">cd</span> teachable-machine-roi<br>
@@ -560,7 +675,11 @@
       <span class="comment">#    - Toggle OSC to start sending</span>
     </div>
 
-    <p style="margin-top: 1.5rem;">
+    <p style="margin-top: 1.5rem;" lang="ja">
+      ビルド済みの <code>.dmg</code> は
+      <a href="https://github.com/634nakajima/teachable-machine-roi/releases" style="color: var(--accent);">Releases</a> ページからダウンロードできます。
+    </p>
+    <p style="margin-top: 1.5rem;" lang="en">
       Or grab a pre-built <code>.dmg</code> from the
       <a href="https://github.com/634nakajima/teachable-machine-roi/releases" style="color: var(--accent);">Releases</a> page.
     </p>
@@ -575,6 +694,16 @@
       MIT License
     </p>
   </footer>
+
+  <script>
+    function setLang(lang) {
+      document.body.classList.toggle('en', lang === 'en');
+      document.documentElement.lang = lang;
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent.trim() === lang.toUpperCase());
+      });
+    }
+  </script>
 
 </body>
 </html>
