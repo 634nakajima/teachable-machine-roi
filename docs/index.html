@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teachable Machine ROI</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --surface2: #1e1e1e;
+      --border: #2a2a2a;
+      --text: #e8e8e8;
+      --text-dim: #888;
+      --accent: #4ecdc4;
+      --accent2: #ff6b6b;
+      --accent3: #ffe66d;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* Hero */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 2rem;
+      position: relative;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(78, 205, 196, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 50%, rgba(255, 107, 107, 0.06) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      margin-bottom: 2rem;
+    }
+
+    .hero-badge .dot {
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    h1 {
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+    }
+
+    h1 .highlight {
+      background: linear-gradient(135deg, var(--accent), var(--accent3));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      color: var(--text-dim);
+      max-width: 600px;
+      margin-bottom: 2.5rem;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+    }
+
+    .btn-primary:hover {
+      background: #5de0d7;
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      border-color: #444;
+      transform: translateY(-1px);
+    }
+
+    /* Problem section */
+    .section {
+      padding: 6rem 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+
+    .section h2 {
+      font-size: clamp(1.5rem, 3vw, 2.2rem);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.5rem;
+    }
+
+    .section p {
+      color: var(--text-dim);
+      font-size: 1.05rem;
+      margin-bottom: 1rem;
+    }
+
+    /* Comparison cards */
+    .compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin: 3rem 0;
+    }
+
+    @media (max-width: 640px) {
+      .compare { grid-template-columns: 1fr; }
+    }
+
+    .compare-card {
+      padding: 1.5rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .compare-card.problem {
+      border-color: rgba(255, 107, 107, 0.3);
+    }
+
+    .compare-card.solution {
+      border-color: rgba(78, 205, 196, 0.3);
+    }
+
+    .compare-card h3 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 1rem;
+    }
+
+    .compare-card.problem h3 { color: var(--accent2); }
+    .compare-card.solution h3 { color: var(--accent); }
+
+    .compare-card ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .compare-card li {
+      padding: 0.4rem 0;
+      color: var(--text-dim);
+      font-size: 0.95rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .compare-card li::before {
+      flex-shrink: 0;
+      margin-top: 0.15rem;
+    }
+
+    .compare-card.problem li::before {
+      content: '\2715';
+      color: var(--accent2);
+    }
+
+    .compare-card.solution li::before {
+      content: '\2713';
+      color: var(--accent);
+    }
+
+    /* Features */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin: 3rem 0;
+    }
+
+    .feature {
+      padding: 1.5rem;
+      border-radius: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      transition: border-color 0.2s;
+    }
+
+    .feature:hover {
+      border-color: #444;
+    }
+
+    .feature-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .feature h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .feature p {
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    /* Use cases */
+    .use-case {
+      padding: 1.25rem 1.5rem;
+      border-left: 2px solid var(--accent);
+      background: var(--surface);
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 1rem;
+    }
+
+    .use-case h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .use-case p {
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      margin: 0;
+    }
+
+    /* Architecture diagram */
+    .arch {
+      margin: 3rem 0;
+      padding: 2rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .arch-flow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      font-size: 0.9rem;
+    }
+
+    .arch-node {
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .arch-node.cam { background: rgba(78, 205, 196, 0.15); color: var(--accent); border: 1px solid rgba(78, 205, 196, 0.3); }
+    .arch-node.roi { background: rgba(255, 230, 109, 0.15); color: var(--accent3); border: 1px solid rgba(255, 230, 109, 0.3); }
+    .arch-node.tm { background: rgba(255, 107, 107, 0.15); color: var(--accent2); border: 1px solid rgba(255, 107, 107, 0.3); }
+    .arch-node.osc { background: rgba(78, 205, 196, 0.15); color: var(--accent); border: 1px solid rgba(78, 205, 196, 0.3); }
+
+    .arch-arrow {
+      color: var(--text-dim);
+      font-size: 1.2rem;
+    }
+
+    /* Getting started */
+    .code-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.85rem;
+      overflow-x: auto;
+      margin: 1rem 0;
+      line-height: 1.8;
+    }
+
+    .code-block .comment { color: #555; }
+    .code-block .cmd { color: var(--accent); }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 4rem 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--text-dim);
+      font-size: 0.85rem;
+    }
+
+    .footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Divider */
+    .divider {
+      max-width: 900px;
+      margin: 0 auto;
+      border: none;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-badge">
+      <span class="dot"></span>
+      Open Source &middot; Electron App
+    </div>
+    <h1>
+      Teachable Machine<br>
+      meets <span class="highlight">ROI</span>
+    </h1>
+    <p class="hero-sub">
+      Teachable Machine&thinsp;+&thinsp;Region of Interest&thinsp;+&thinsp;OSC.<br>
+      "Where" and "what" &mdash; answered together, sent anywhere.
+    </p>
+    <div class="hero-buttons">
+      <a href="https://github.com/634nakajima/teachable-machine-roi/releases" class="btn btn-primary">
+        Download
+      </a>
+      <a href="https://github.com/634nakajima/teachable-machine-roi" class="btn btn-secondary">
+        GitHub
+      </a>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- Problem -->
+  <section class="section">
+    <span class="section-label">The gap</span>
+    <h2>Easy classification, but no spatial awareness</h2>
+    <p>
+      Teachable Machine made image classification delightfully easy &mdash;
+      train a model in minutes, right in your browser.
+      But it looks at the entire camera frame at once.
+      It can tell you <em>what</em> it sees, but not <em>where</em>.
+    </p>
+    <p>
+      YOLO and other object detection frameworks can do both &mdash;
+      but setting them up involves environment configuration,
+      annotation workflows, and GPU training pipelines.
+      That's a steep jump for creative coders and interaction designers.
+    </p>
+
+    <div class="compare">
+      <div class="compare-card problem">
+        <h3>Teachable Machine alone</h3>
+        <ul>
+          <li>Whole-frame classification only</li>
+          <li>No spatial information</li>
+          <li>Can't distinguish location of objects</li>
+        </ul>
+      </div>
+      <div class="compare-card problem">
+        <h3>YOLO / Object Detection</h3>
+        <ul>
+          <li>Complex environment setup</li>
+          <li>Manual bounding-box annotation</li>
+          <li>GPU training required</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="compare">
+      <div class="compare-card solution" style="grid-column: 1 / -1;">
+        <h3>Teachable Machine ROI</h3>
+        <ul>
+          <li>Use your existing Teachable Machine model as-is</li>
+          <li>Draw square ROI regions on the camera feed</li>
+          <li>Each region classified independently</li>
+          <li>Results sent as OSC for live integration with any app</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- How it works -->
+  <section class="section">
+    <span class="section-label">How it works</span>
+    <h2>Draw a box. Load a model. Done.</h2>
+    <p>
+      Draw one or more square ROI regions directly on the camera preview.
+      Each region is cropped and fed into your Teachable Machine model
+      independently. Classification results are displayed in real time
+      and sent over OSC.
+    </p>
+
+    <div class="arch">
+      <div class="arch-flow">
+        <span class="arch-node cam">Webcam</span>
+        <span class="arch-arrow">&rarr;</span>
+        <span class="arch-node roi">ROI Crop</span>
+        <span class="arch-arrow">&rarr;</span>
+        <span class="arch-node tm">TM Model</span>
+        <span class="arch-arrow">&rarr;</span>
+        <span class="arch-node osc">OSC Out</span>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- Features -->
+  <section class="section">
+    <span class="section-label">Features</span>
+    <h2>What you get</h2>
+
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">&square;</div>
+        <h3>Multiple ROI Regions</h3>
+        <p>Draw as many regions as you need. Each one runs classification independently with its own results.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">&target;</div>
+        <h3>Square Constraint</h3>
+        <p>ROIs are always square to match Teachable Machine's 224&times;224 input, preventing aspect-ratio distortion.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">&zigrarr;</div>
+        <h3>OSC Output</h3>
+        <p>Classification results sent via OSC. Works with Pure Data, Max/MSP, TouchDesigner, Unity, and more.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">&ofcir;</div>
+        <h3>Cloud or Local Models</h3>
+        <p>Paste a Teachable Machine URL or load a downloaded .zip. Works offline with local models.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">&hamilt;</div>
+        <h3>Renamable ROIs</h3>
+        <p>Give each ROI a meaningful name. OSC addresses update automatically to match.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">&check;</div>
+        <h3>Selective OSC Sending</h3>
+        <p>Choose which classification results to send via checkboxes. Monitor active transmissions with a status indicator.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- Use cases -->
+  <section class="section">
+    <span class="section-label">Use cases</span>
+    <h2>What you can do with it</h2>
+
+    <div class="use-case">
+      <h4>Spatial triggers</h4>
+      <p>"If object A is in the left zone AND object B is in the right zone, trigger event C."</p>
+    </div>
+    <div class="use-case">
+      <h4>Movement detection</h4>
+      <p>"When object A moves from the left ROI to the right ROI, play a sound."</p>
+    </div>
+    <div class="use-case">
+      <h4>Multi-zone interaction</h4>
+      <p>Set up multiple zones on a table or stage and respond to what appears in each zone independently.</p>
+    </div>
+    <div class="use-case">
+      <h4>Live performance</h4>
+      <p>Send classification results to Pure Data or Max/MSP via OSC to control sound, visuals, or lighting in real time.</p>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- Getting started -->
+  <section class="section">
+    <span class="section-label">Getting started</span>
+    <h2>Up and running in 3 steps</h2>
+
+    <div class="code-block">
+      <span class="comment"># 1. Clone and install</span><br>
+      <span class="cmd">git clone</span> https://github.com/634nakajima/teachable-machine-roi.git<br>
+      <span class="cmd">cd</span> teachable-machine-roi<br>
+      <span class="cmd">npm install</span><br>
+      <br>
+      <span class="comment"># 2. Launch</span><br>
+      <span class="cmd">npm start</span><br>
+      <br>
+      <span class="comment"># 3. In the app:</span><br>
+      <span class="comment">#    - Load a Teachable Machine model (URL or .zip)</span><br>
+      <span class="comment">#    - Draw ROI regions on the camera feed</span><br>
+      <span class="comment">#    - Toggle OSC to start sending</span>
+    </div>
+
+    <p style="margin-top: 1.5rem;">
+      Or grab a pre-built <code>.dmg</code> from the
+      <a href="https://github.com/634nakajima/teachable-machine-roi/releases" style="color: var(--accent);">Releases</a> page.
+    </p>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>
+      Built with Electron, TensorFlow.js, and osc.js<br>
+      <a href="https://github.com/634nakajima/teachable-machine-roi">GitHub</a>
+      &middot;
+      MIT License
+    </p>
+  </footer>
+
+</body>
+</html>
